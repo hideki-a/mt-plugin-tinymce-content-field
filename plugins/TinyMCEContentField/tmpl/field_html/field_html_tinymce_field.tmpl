@@ -1,0 +1,87 @@
+<div class="group-container tinymce-field-container content-field" <mt:var name="required">>
+<div class="form-group">
+  <div class="mt-contentblock" id="contentblock<mt:var name="content_field_id">">
+    <mt:ignore>editor-content</mt:ignore>
+    <div class="editor-content<mt:if name="convert_breaks" ne="richtext"> editor-plaintext</mt:if>">
+      <textarea id="editor-input-content-field-<mt:var name="content_field_id">"  name="tinymce-field-<mt:var name="content_field_id">" class="form-control text high content-field editorfield group" mt:raw-name="1" <mt:if name="options{required}">required</mt:if>><mt:var name="value" escape="html"></textarea>
+    </div>
+  </div>
+</div>
+
+<mt:unless name="editors">
+  <mt:if name="rich_editor"><mt:var name="rich_editor_tmpl"><mt:else><mt:include name="include/archetype_editor_multi.tmpl"></mt:if>
+<mt:else>
+  <mt:include name="include/editor_script.tmpl" id="editor_script_include">
+</mt:unless>
+
+
+<mt:unless name="loaded_multi_line_text_field">
+  <mt:unless name="loaded_tinymce_text_field">
+  <mt:var name="loaded_tinymce_text_field" value="1">
+
+  <mt:setvarblock name="jq_js_include" append="1">
+  <mt:if name="editors">
+  // editor load
+  var editor_strategy = MT.App.EditorStrategy.Multi;
+  editor_strategy.prototype.create = function(app, ids, format) {
+    jQuery('.editorfield').each(function(i) {
+      ids.push(this.id);
+    });
+    app.editors = {};
+    jQuery.each(ids, function() {
+        jQuery('#' + this).show();
+        var format = jQuery('.convert_breaks[data-target='+this+']').val();
+        app.editors[this] = new MT.EditorManager(this, {
+            format: format,
+            wrap: true
+        });
+
+        var setFormat = app.editors[this]['setFormat'];
+        app.editors[this]['setFormat'] = function(format) {
+            jQuery.each(app.editors, function() {
+                setFormat.apply(this, [format]);
+            });
+        };
+    });
+  }
+  editor_strategy.prototype._setWithHeight = function(app, id, height){
+      jQuery(app.editorIds).each(function() {
+          if (id == this) {
+              app.editors[this].show();
+              app.editor = app.editors[this];
+              if (height) {
+                  app.editor.setHeight(height);
+              }
+          }
+      });
+  }
+  </mt:if>
+
+jQuery(window).on('load change_to_mobile_view change_to_pc_view', function () {
+  var isMobileView = MT.Util.isMobileView();
+  jQuery('.multi_line_text-field-container select.convert_breaks').each(function (index, element) {
+    var $formats = jQuery(element);
+    var selectedFormat = $formats.find('option:selected').val();
+    if (isMobileView) {
+      $formats.find('option[value=richtext]').attr('disabled', 'disabled');
+      $formats.find('option[value=_richtext]').removeAttr('disabled');
+      if (selectedFormat != 'richtext') {
+        return;
+      }
+      $formats.val('_richtext')
+              .trigger('change', true);
+    } else {
+      $formats.find('option[value=richtext]').removeAttr('disabled');
+      $formats.find('option[value=_richtext]').attr('disabled', 'disabled');
+      if (selectedFormat != '_richtext') {
+        return;
+      }
+      $formats.val('richtext')
+              .trigger('change', true);
+    }
+  });
+});
+
+  </mt:setvarblock>
+  </mt:Unless>
+</mt:Unless>
