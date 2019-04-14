@@ -15,3 +15,7 @@ content_field_types:
     field_html_params: $TinyMCEContentField::TinyMCEContentField::App::field_html_params
     data_load_handler: $TinyMCEContentField::TinyMCEContentField::App::data_load_handler
     options_html: content_field_type_options/tinymce_field.tmpl
+applications:
+  cms:
+    callbacks:
+      template_output.edit_content_data: $TinyMCEContentField::TinyMCEContentField::App::template_output_edit_content_data

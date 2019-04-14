@@ -22,4 +22,23 @@ sub data_load_handler {
     return scalar $app->param("tinymce-field-$field_id");
 }
 
+sub template_output_edit_content_data {
+    my ($cb, $app, $tmpl_str_ref, $param, $tmpl) = @_;
+    my $old = '\s+}\);\n\s+}\n\s+editor_strategy.prototype._setWithHeight \= function\(app, id, height\){';
+    my $new = <<EOS;
+
+        if (jQuery('#' + this).hasClass('tinymce-content-field')) {
+          var editor = app.editors[this];
+          app.editors[this]['setFormat'] = function(format) {
+            setFormat.apply(editor, [format]);
+          };
+        }
+    });
+  }
+  editor_strategy.prototype._setWithHeight = function(app, id, height){
+EOS
+
+    $$tmpl_str_ref =~ s!$old!$new!;
+}
+
 1;
