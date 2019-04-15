@@ -39,6 +39,16 @@ sub template_output_edit_content_data {
 EOS
 
     $$tmpl_str_ref =~ s!$old!$new!;
+
+
+    $old = '\s+app.editors\[this\] \= new MT\.EditorManager\(this, {';
+    $new = <<EOS;
+
+        format = format.replace('-full', '');
+        app.editors[this] = new MT.EditorManager(this, {
+EOS
+
+    $$tmpl_str_ref =~ s!$old!$new!;
 }
 
 1;
